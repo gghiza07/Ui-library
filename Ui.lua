@@ -6,7 +6,7 @@ local ContentProvider = game:GetService("ContentProvider")
 local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
 
-local VERSION = "V0.1"
+local VERSION = "V1"
 local LOCKED = false
 local DEBUG_MODE = false
 
