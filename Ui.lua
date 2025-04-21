@@ -1388,7 +1388,7 @@ function Gghiza07UI:CreateWindow(config)
             })
 
             if config.Discord and config.Discord.Discord and config.Discord.Invite then
-                bgTab:AddToggle({
+                bgTab:AddButton({
                     Name = "Copy Discord Invite",
                     Default = false,
                     Callback = function(state)
