@@ -5,7 +5,7 @@ local HttpService = game:GetService("HttpService")
 local ContentProvider = game:GetService("ContentProvider")
 local RunService = game:GetService("RunService")
 
-local VERSION = "V4.12 Enhanced"
+local VERSION = "V0.1"
 local LOCKED = false
 local DEBUG_MODE = false
 
@@ -768,7 +768,7 @@ function Gghiza07UI:CreateWindow(config)
             })
             
             bgTab:AddInput({
-                Name = "Image ID (Number only, e.g., 5191098772)",
+                Name = "Image ID (Number only)",
                 Callback = function(value)
                     if value:match("^%d+$") then
                         local thumbId = string.format("rbxthumb://type=Asset&id=%s&w=420&h=420", value)
