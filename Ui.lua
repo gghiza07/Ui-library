@@ -678,9 +678,7 @@ function Gghiza07UI:CreateWindow(config)
                 showNotification("Clicked " .. (buttonConfig.Name or "Button"))
 
                 if buttonConfig.Callback then
-                    local success, err = pcall(function()
-                        buttonConfig.Callback()
-                    end)
+                    local success, err = pcall(buttonConfig.Callback)
                     if not success then
                         debugPrint("Button callback error:", err)
                     end
@@ -1136,7 +1134,7 @@ function Gghiza07UI:CreateWindow(config)
                         showNotification("Background color updated")
                     else
                         warn("Invalid RGB format. Use: R,G,B (e.g., 30,30,30)")
-                        showNotification("Invalid RGB format]]) format('Invalid RGB format. Use: R,G,B (e.g., 30,30,30)')showNotification("Invalid RGB format")
+                        showNotification("Invalid RGB format")
                     end
                 end
             })
@@ -1249,7 +1247,7 @@ function Gghiza07UI:CreateWindow(config)
                     else
                         debugPrint("Image or video is displayed, keeping MainFrame Transparency at 1")
                     end
-                   -HomeToSave = {
+                    local themeToSave = {
                         BackgroundColor = color3ToTable(theme.BackgroundColor),
                         AccentColor = color3ToTable(theme.AccentColor),
                         TextColor = color3ToTable(theme.TextColor),
@@ -1392,19 +1390,19 @@ function Gghiza07UI:CreateWindow(config)
             if config.Discord and config.Discord.Discord and config.Discord.Invite then
                 bgTab:AddButton({
                     Name = "Copy Discord Invite",
-                    Callback = function()
-                        local success, err = pcall(function()
-                            setclipboard(config.Discord.Invite)
-                        end)
-                        if success then
-                            debugPrint("Discord invite copied:", config.Discord.Invite)
-                            showNotification("Discord invite copied")
-                            if buttonClickSound.SoundId ~= "" then
-                                buttonClickSound:Play()
+                    Default = false,
+                    Callback = function(state)
+                        if state then
+                            local success, err = pcall(function()
+                                setclipboard(config.Discord.Invite)
+                            end)
+                            if success then
+                                debugPrint("Discord invite copied:", config.Discord.Invite)
+                                showNotification("Discord invite copied")
+                            else
+                                warn("Failed to copy Discord invite:", err)
+                                showNotification("Failed to copy Discord invite")
                             end
-                        else
-                            warn("Failed to copy Discord invite:", err)
-                            showNotification("Failed to copy Discord invite")
                         end
                     end
                 })
