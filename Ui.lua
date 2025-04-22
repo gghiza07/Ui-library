@@ -6,9 +6,10 @@ local ContentProvider = game:GetService("ContentProvider")
 local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
 
-local VERSION = "V1"
+local VERSION = "V0.1"
 local LOCKED = false
 local DEBUG_MODE = false
+local NOTIFICATIONS_ENABLED = false -- ปิดการแจ้งเตือนตามคำขอ
 
 local function debugPrint(...)
     if DEBUG_MODE then
@@ -18,6 +19,10 @@ end
 
 function Gghiza07UI:SetDebug(enabled)
     DEBUG_MODE = enabled
+end
+
+function Gghiza07UI:SetNotifications(enabled)
+    NOTIFICATIONS_ENABLED = enabled
 end
 
 function Gghiza07UI:Lock()
@@ -42,7 +47,9 @@ function Gghiza07UI:CreateWindow(config)
     local window = {}
     debugPrint("Creating window:", config.Name, "Version:", VERSION)
 
-    local SETTINGS_FOLDER = "Gghiza07UI/" .. (config.Name or "DefaultUI")
+    -- ใช้ FileFolder จาก config หากกำหนดมา มิฉะนั้นใช้ชื่อโฟลเดอร์เริ่มต้น
+    local FOLDER_NAME = config.FileFolder or "Gghiza07UI"
+    local SETTINGS_FOLDER = FOLDER_NAME .. "/" .. (config.Name or "DefaultUI")
     local SETTINGS_FILE = SETTINGS_FOLDER .. "/settings.json"
     local BACKGROUND_FILE = SETTINGS_FOLDER .. "/background.txt"
     local VIDEO_FILE = SETTINGS_FOLDER .. "/video.txt"
@@ -85,8 +92,8 @@ function Gghiza07UI:CreateWindow(config)
     local function ensureFolderExists()
         if not saveSetting then return end
         local success, err = pcall(function()
-            if not isfolder("Gghiza07UI") then
-                makefolder("Gghiza07UI")
+            if not isfolder(FOLDER_NAME) then
+                makefolder(FOLDER_NAME)
             end
             if not isfolder(SETTINGS_FOLDER) then
                 makefolder(SETTINGS_FOLDER)
@@ -129,7 +136,6 @@ function Gghiza07UI:CreateWindow(config)
         return default
     end
 
-    -- แก้ไข: ตรวจสอบและกำหนดค่า elementStates ให้ครบถ้วน
     local loadedElementStates = loadData(ELEMENTS_FILE, {Toggles = {}, Inputs = {}, Dropdowns = {}})
     if type(loadedElementStates) == "table" then
         elementStates.Toggles = loadedElementStates.Toggles or {}
@@ -372,7 +378,6 @@ function Gghiza07UI:CreateWindow(config)
     cornerToggle.CornerRadius = UDim.new(0, 15)
     cornerToggle.Parent = toggleButton
 
-    -- Sound object
     local buttonClickSound = Instance.new("Sound")
     buttonClickSound.Name = "ButtonClickSound"
     buttonClickSound.SoundId = ""
@@ -385,7 +390,6 @@ function Gghiza07UI:CreateWindow(config)
         debugPrint("Loaded saved Sound ID:", buttonClickSound.SoundId)
     end
 
-    -- Notification system
     local notifications = {}
     local NOTIFICATION_HEIGHT = 50
     local NOTIFICATION_SPACING = 10
@@ -401,6 +405,7 @@ function Gghiza07UI:CreateWindow(config)
     end
 
     local function showNotification(message)
+        if not NOTIFICATIONS_ENABLED then return end
         local notificationFrame = Instance.new("Frame")
         notificationFrame.Size = UDim2.new(0, 200, 0, NOTIFICATION_HEIGHT)
         notificationFrame.Position = UDim2.new(1, -210, 0, 10 + #notifications * (NOTIFICATION_HEIGHT + NOTIFICATION_SPACING))
@@ -470,7 +475,9 @@ function Gghiza07UI:CreateWindow(config)
         if buttonClickSound.SoundId ~= "" then
             buttonClickSound:Play()
         end
-        showNotification("UI " .. (targetState and "Opened" or "Closed"))
+        if NOTIFICATIONS_ENABLED then
+            showNotification("UI " .. (targetState and "Opened" or "Closed"))
+        end
     end
 
     toggleButton.MouseButton1Click:Connect(toggleUI)
@@ -529,14 +536,18 @@ function Gghiza07UI:CreateWindow(config)
                 if buttonClickSound.SoundId ~= "" then
                     buttonClickSound:Play()
                 end
-                showNotification("Key verified")
+                if NOTIFICATIONS_ENABLED then
+                    showNotification("Key verified")
+                end
             else
                 keyInput.Text = ""
                 keyInput.PlaceholderText = "Invalid key, try again"
                 if buttonClickSound.SoundId ~= "" then
                     buttonClickSound:Play()
                 end
-                showNotification("Invalid key")
+                if NOTIFICATIONS_ENABLED then
+                    showNotification("Invalid key")
+                end
             end
         end)
 
@@ -552,10 +563,14 @@ function Gghiza07UI:CreateWindow(config)
                     if buttonClickSound.SoundId ~= "" then
                         buttonClickSound:Play()
                     end
-                    showNotification("Key link copied")
+                    if NOTIFICATIONS_ENABLED then
+                        showNotification("Key link copied")
+                    end
                 else
                     warn("Failed to copy key link:", err)
-                    showNotification("Failed to copy key link")
+                    if NOTIFICATIONS_ENABLED then
+                        showNotification("Failed to copy key link")
+                    end
                 end
             end
         end)
@@ -642,7 +657,9 @@ function Gghiza07UI:CreateWindow(config)
             if buttonClickSound.SoundId ~= "" then
                 buttonClickSound:Play()
             end
-            showNotification("Switched to " .. tabName)
+            if NOTIFICATIONS_ENABLED then
+                showNotification("Switched to " .. tabName)
+            end
         end
 
         tabButton.MouseButton1Click:Connect(selectTab)
@@ -657,10 +674,13 @@ function Gghiza07UI:CreateWindow(config)
 
             local button = Instance.new("TextButton")
             button.Name = buttonConfig.Name or "Button"
-            button.Size = UDim2.new(1, -20, 0, 40)
+            button.Size = UDim2.new(1, -10, 0, 50) -- ปรับขนาดให้ใหญ่ขึ้น
             button.BackgroundColor3 = theme.AccentColor
             button.Text = buttonConfig.Name or "Button"
             button.TextColor3 = theme.TextColor
+            button.TextSize = 18 -- กำหนดขนาดตัวอักษร
+            button.TextScaled = false -- ปิด TextScaled เพื่อควบคุมขนาด
+            button.TextTruncate = Enum.TextTruncate.AtEnd -- ตัดข้อความยาวเกิน
             button.ZIndex = 11
             button.LayoutOrder = #tabContent:GetChildren()
             button.Active = true
@@ -675,7 +695,9 @@ function Gghiza07UI:CreateWindow(config)
                 if buttonClickSound.SoundId ~= "" then
                     buttonClickSound:Play()
                 end
-                showNotification("Clicked " .. (buttonConfig.Name or "Button"))
+                if NOTIFICATIONS_ENABLED then
+                    showNotification("Clicked " .. (buttonConfig.Name or "Button"))
+                end
 
                 if buttonConfig.Callback then
                     local success, err = pcall(buttonConfig.Callback)
@@ -751,7 +773,9 @@ function Gghiza07UI:CreateWindow(config)
                 if buttonClickSound.SoundId ~= "" then
                     buttonClickSound:Play()
                 end
-                showNotification((toggleConfig.Name or "Toggle") .. " set to " .. (toggleState and "ON" or "OFF"))
+                if NOTIFICATIONS_ENABLED then
+                    showNotification((toggleConfig.Name or "Toggle") .. " set to " .. (toggleState and "ON" or "OFF"))
+                end
 
                 if toggleConfig.Callback then
                     local success, err = pcall(function()
@@ -850,7 +874,9 @@ function Gghiza07UI:CreateWindow(config)
                         if buttonClickSound.SoundId ~= "" then
                             buttonClickSound:Play()
                         end
-                        showNotification((sliderConfig.Name or "Slider") .. " set to " .. string.format("%.2f", value))
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification((sliderConfig.Name or "Slider") .. " set to " .. string.format("%.2f", value))
+                        end
 
                         if sliderConfig.Callback then
                             local success, err = pcall(function()
@@ -888,7 +914,9 @@ function Gghiza07UI:CreateWindow(config)
             dropdownButton.BackgroundColor3 = theme.AccentColor
             dropdownButton.Text = dropdownConfig.Name or "Select Option"
             dropdownButton.TextColor3 = theme.TextColor
-            dropdownButton.TextScaled = true
+            dropdownButton.TextSize = 16 -- ปรับขนาดตัวอักษร
+            dropdownButton.TextScaled = false -- ปิด TextScaled
+            dropdownButton.TextTruncate = Enum.TextTruncate.AtEnd -- ตัดข้อความยาวเกิน
             dropdownButton.ZIndex = 11
             dropdownButton.Active = true
             dropdownButton.AutoButtonColor = true
@@ -914,7 +942,6 @@ function Gghiza07UI:CreateWindow(config)
             local isMulti = dropdownConfig.Multi or false
             local maxSelections = dropdownConfig.MaxSelections or math.huge
             local selectedOptions = {}
-            -- แก้ไข: ตรวจสอบ elementStates.Dropdowns ก่อนใช้งาน
             if elementStates.Dropdowns and elementStates.Dropdowns[dropdownConfig.Name] then
                 selectedOptions = elementStates.Dropdowns[dropdownConfig.Name]
                 dropdownButton.Text = #selectedOptions > 0 and table.concat(selectedOptions, ", ") or (dropdownConfig.Name or "Select Option")
@@ -936,7 +963,7 @@ function Gghiza07UI:CreateWindow(config)
                 saveData(ELEMENTS_FILE, elementStates)
             end
 
-            local optionButtons = {} -- เพื่อเก็บปุ่มตัวเลือกทั้งหมดสำหรับ Single Dropdown
+            local optionButtons = {}
 
             for i, option in ipairs(dropdownConfig.Options) do
                 local optionFrame = Instance.new("Frame")
@@ -965,7 +992,9 @@ function Gghiza07UI:CreateWindow(config)
                 optionLabel.BackgroundTransparency = 1
                 optionLabel.Text = tostring(option)
                 optionLabel.TextColor3 = theme.TextColor
-                optionLabel.TextScaled = true
+                optionLabel.TextSize = 14 -- ปรับขนาดตัวอักษร
+                optionLabel.TextScaled = false -- ปิด TextScaled
+                optionLabel.TextTruncate = Enum.TextTruncate.AtEnd -- ตัดข้อความยาวเกิน
                 optionLabel.TextXAlignment = Enum.TextXAlignment.Left
                 optionLabel.ZIndex = 14
                 optionLabel.Active = true
@@ -986,7 +1015,9 @@ function Gghiza07UI:CreateWindow(config)
                                 checkbox.BackgroundColor3 = theme.AccentColor
                                 checkbox.Text = "✓"
                             else
-                                showNotification("Maximum selections reached")
+                                if NOTIFICATIONS_ENABLED then
+                                    showNotification("Maximum selections reached")
+                                end
                                 return
                             end
                         end
@@ -994,9 +1025,10 @@ function Gghiza07UI:CreateWindow(config)
                         if buttonClickSound.SoundId ~= "" then
                             buttonClickSound:Play()
                         end
-                        showNotification("Selected " .. tostring(option))
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Selected " .. tostring(option))
+                        end
                     else
-                        -- Single Dropdown: รีเซ็ตตัวเลือกอื่น ๆ และเลือกตัวใหม่
                         for _, btn in ipairs(optionButtons) do
                             btn.Label.TextColor3 = theme.TextColor
                         end
@@ -1007,7 +1039,9 @@ function Gghiza07UI:CreateWindow(config)
                         if buttonClickSound.SoundId ~= "" then
                             buttonClickSound:Play()
                         end
-                        showNotification("Selected " .. tostring(option))
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Selected " .. tostring(option))
+                        end
                     end
 
                     if dropdownConfig.Callback then
@@ -1093,7 +1127,9 @@ function Gghiza07UI:CreateWindow(config)
                     if buttonClickSound.SoundId ~= "" then
                         buttonClickSound:Play()
                     end
-                    showNotification("Input updated: " .. textBox.Text)
+                    if NOTIFICATIONS_ENABLED then
+                        showNotification("Input updated: " .. textBox.Text)
+                    end
 
                     if inputConfig.Callback then
                         local success, err = pcall(function()
@@ -1131,10 +1167,14 @@ function Gghiza07UI:CreateWindow(config)
                             Transparency = theme.Transparency
                         }
                         saveData(THEME_FILE, themeToSave)
-                        showNotification("Background color updated")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Background color updated")
+                        end
                     else
                         warn("Invalid RGB format. Use: R,G,B (e.g., 30,30,30)")
-                        showNotification("Invalid RGB format")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Invalid RGB format")
+                        end
                     end
                 end
             })
@@ -1170,14 +1210,18 @@ function Gghiza07UI:CreateWindow(config)
                             imageLabel.ImageTransparency = 0
                             mainFrame.BackgroundTransparency = 1
                             saveData(BACKGROUND_FILE, thumbId)
-                            showNotification("Image loaded")
+                            if NOTIFICATIONS_ENABLED then
+                                showNotification("Image loaded")
+                            end
                         else
                             warn("Failed to preload image after", retries, "attempts")
                             imageLabel.Image = ""
                             imageLabel.Visible = false
                             mainFrame.BackgroundTransparency = math.min(theme.Transparency, 0.8)
                             mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-                            showNotification("Failed to load image")
+                            if NOTIFICATIONS_ENABLED then
+                                showNotification("Failed to load image")
+                            end
                         end
                     else
                         warn("Invalid Image ID format. Use a number only (e.g., 5191098772)")
@@ -1185,7 +1229,9 @@ function Gghiza07UI:CreateWindow(config)
                         imageLabel.Visible = false
                         mainFrame.BackgroundTransparency = math.min(theme.Transparency, 0.8)
                         mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-                        showNotification("Invalid Image ID format")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Invalid Image ID format")
+                        end
                     end
                 end
             })
@@ -1209,7 +1255,9 @@ function Gghiza07UI:CreateWindow(config)
                         if success then
                             debugPrint("Video loaded successfully")
                             saveData(VIDEO_FILE, value)
-                            showNotification("Video loaded")
+                            if NOTIFICATIONS_ENABLED then
+                                showNotification("Video loaded")
+                            end
                         else
                             warn("Failed to load video:", err)
                             videoFrame.Video = ""
@@ -1217,7 +1265,9 @@ function Gghiza07UI:CreateWindow(config)
                             imageLabel.Visible = true
                             mainFrame.BackgroundTransparency = math.min(theme.Transparency, 0.8)
                             mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-                            showNotification("Failed to load video")
+                            if NOTIFICATIONS_ENABLED then
+                                showNotification("Failed to load video")
+                            end
                         end
                     else
                         warn("Invalid Video ID format. Use rbxassetid:// followed by numbers or just the numbers")
@@ -1226,7 +1276,9 @@ function Gghiza07UI:CreateWindow(config)
                         imageLabel.Visible = true
                         mainFrame.BackgroundTransparency = math.min(theme.Transparency, 0.8)
                         mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-                        showNotification("Invalid Video ID format")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Invalid Video ID format")
+                        end
                     end
                 end
             })
@@ -1255,7 +1307,9 @@ function Gghiza07UI:CreateWindow(config)
                         Transparency = theme.Transparency
                     }
                     saveData(THEME_FILE, themeToSave)
-                    showNotification("Transparency set to " .. string.format("%.2f", value))
+                    if NOTIFICATIONS_ENABLED then
+                        showNotification("Transparency set to " .. string.format("%.2f", value))
+                    end
                 end
             })
 
@@ -1266,7 +1320,9 @@ function Gghiza07UI:CreateWindow(config)
                     if value == "" then
                         buttonClickSound.SoundId = ""
                         saveData(SOUND_FILE, {SoundId = ""})
-                        showNotification("Sound disabled")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Sound disabled")
+                        end
                         debugPrint("Sound disabled")
                         return
                     end
@@ -1283,17 +1339,23 @@ function Gghiza07UI:CreateWindow(config)
 
                         if success then
                             debugPrint("Sound loaded successfully")
-                            showNotification("Sound updated to ID: " .. value)
+                            if NOTIFICATIONS_ENABLED then
+                                showNotification("Sound updated to ID: " .. value)
+                            end
                             saveData(SOUND_FILE, {SoundId = value})
                         else
                             warn("Failed to load sound:", err)
-                            showNotification("Failed to load Sound ID: " .. value)
+                            if NOTIFICATIONS_ENABLED then
+                                showNotification("Failed to load Sound ID: " .. value)
+                            end
                             buttonClickSound.SoundId = ""
                             saveData(SOUND_FILE, {SoundId = ""})
                         end
                     else
                         warn("Invalid Sound ID format. Use a number only (e.g., 9120386436)")
-                        showNotification("Invalid Sound ID format")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Invalid Sound ID format")
+                        end
                     end
                 end
             })
@@ -1305,20 +1367,25 @@ function Gghiza07UI:CreateWindow(config)
                         if videoFrame.IsPlaying then
                             videoFrame:Pause()
                             debugPrint("Video paused")
-                            showNotification("Video paused")
+                            if NOTIFICATIONS_ENABLED then
+                                showNotification("Video paused")
+                            end
                         else
                             videoFrame:Play()
                             debugPrint("Video playing")
-                            showNotification("Video playing")
+                            if NOTIFICATIONS_ENABLED then
+                                showNotification("Video playing")
+                            end
                         end
                     else
                         debugPrint("No video loaded")
-                        showNotification("No video loaded")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("No video loaded")
+                        end
                     end
                 end
             })
 
-            -- เพิ่มปุ่มรีเซ็ตเฉพาะส่วน
             bgTab:AddButton({
                 Name = "Reset Dropdowns",
                 Callback = function()
@@ -1326,11 +1393,15 @@ function Gghiza07UI:CreateWindow(config)
                         elementStates.Dropdowns = {}
                         saveData(ELEMENTS_FILE, elementStates)
                         debugPrint("Dropdown states reset")
-                        showNotification("Dropdown states reset")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Dropdown states reset")
+                        end
                     end)
                     if not success then
                         warn("Failed to reset dropdown states:", err)
-                        showNotification("Failed to reset dropdown states")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Failed to reset dropdown states")
+                        end
                     end
                 end
             })
@@ -1347,11 +1418,15 @@ function Gghiza07UI:CreateWindow(config)
                         theme.Transparency = 0.2
                         mainFrame.BackgroundTransparency = 0.2
                         debugPrint("Theme reset")
-                        showNotification("Theme reset")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Theme reset")
+                        end
                     end)
                     if not success then
                         warn("Failed to reset theme:", err)
-                        showNotification("Failed to reset theme")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Failed to reset theme")
+                        end
                     end
                 end
             })
@@ -1379,28 +1454,33 @@ function Gghiza07UI:CreateWindow(config)
                         saveData(ELEMENTS_FILE, elementStates)
                         saveData(SOUND_FILE, {SoundId = ""})
                         debugPrint("Settings reset successfully")
-                        showNotification("Settings reset")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Settings reset")
+                        end
                     else
                         warn("Failed to reset settings:", err)
-                        showNotification("Failed to reset settings")
+                        if NOTIFICATIONS_ENABLED then
+                            showNotification("Failed to reset settings")
+                        end
                     end
                 end
             })
 
-            if config.Discord and config.Discord.Discord and config.Discord.Invite then
+            if config.Discord and config.Discord.Invite then
                 bgTab:AddButton({
                     Name = "Copy Discord Invite",
-                    Default = false,
-                    Callback = function(state)
-                        if state then
-                            local success, err = pcall(function()
-                                setclipboard(config.Discord.Invite)
-                            end)
-                            if success then
-                                debugPrint("Discord invite copied:", config.Discord.Invite)
+                    Callback = function()
+                        local success, err = pcall(function()
+                            setclipboard(config.Discord.Invite)
+                        end)
+                        if success then
+                            debugPrint("Discord invite copied:", config.Discord.Invite)
+                            if NOTIFICATIONS_ENABLED then
                                 showNotification("Discord invite copied")
-                            else
-                                warn("Failed to copy Discord invite:", err)
+                            end
+                        else
+                            warn("Failed to copy Discord invite:", err)
+                            if NOTIFICATIONS_ENABLED then
                                 showNotification("Failed to copy Discord invite")
                             end
                         end
@@ -1481,17 +1561,9 @@ function Gghiza07UI:CreateWindow(config)
                 mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
             end
         end
-
-        if not imageLabel.Visible and not videoFrame.Visible then
-            mainFrame.BackgroundTransparency = math.min(theme.Transparency, 0.8)
-            mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-            debugPrint("No saved image or video, MainFrame Transparency:", mainFrame.BackgroundTransparency)
-            debugPrint("MainFrame BackgroundColor3 set to fallback:", mainFrame.BackgroundColor3)
-        end
     end
 
     loadSettings()
-
     return window
 end
 
