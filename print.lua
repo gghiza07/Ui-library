@@ -1,5 +1,3 @@
-local Debug = false
-
 local Liv = {
   print = {
     "Liv:Dear Commandant, everything seems stable",
@@ -14,7 +12,6 @@ local Liv = {
 }
 
 local function debug(typede, ...)
-  if not Debug then return end
     local typede = typede or "print"
     local chat = Liv[typede] or Liv["print"]
     local randomdebug = chat[math.random(1, #chat)]
