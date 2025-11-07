@@ -55,7 +55,9 @@ frame2.BackgroundTransparency = 0.9
 frame2.BackgroundColor3 = Color3.fromRGB(255,255,255)
 frame2.BorderSizePixel = 0
 frame2.Parent = frame
-local frame2Corner = Instance.new("UICorner"); frame2Corner.CornerRadius = UDim.new(0, 12); frame2Corner.Parent = frame2
+local frame2Corner = Instance.new("UICorner")
+frame2Corner.CornerRadius = UDim.new(0, 12)
+frame2Corner.Parent = frame2
 
 local background = Instance.new("ImageLabel")
 background.Name = "Background"
@@ -212,7 +214,9 @@ local function createTab(tabName)
     accentBar.BackgroundColor3 = Color3.fromRGB(40,40,40)
     accentBar.BorderSizePixel = 0
     accentBar.Parent = btn
-    local accentCorner = Instance.new("UICorner") accentCorner.CornerRadius = UDim.new(0, 8) accentCorner.Parent = accentBar
+    local accentCorner = Instance.new("UICorner")
+    accentCorner.CornerRadius = UDim.new(0, 8)
+    accentCorner.Parent = accentBar
 
     local page = Instance.new("Frame")
     page.Name = tabName.."_Page"
@@ -340,7 +344,9 @@ function ElementAPI.AddButton(parentPage, text, callback)
     btn.Font = Enum.Font.GothamSemibold
     btn.TextSize = 14
     btn.Parent = parentPage
-    local corner = Instance.new("UICorner") corner.CornerRadius = UDim.new(0,8) corner.Parent = btn
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0,8)
+    corner.Parent = btn
 
     local debounce = false
     btn.MouseButton1Click:Connect(function()
@@ -372,7 +378,8 @@ function ElementAPI.AddInput(parentPage, placeholder, callback)
     box.TextSize = 14
     box.ClearTextOnFocus = false
     box.Parent = holder
-    local corner = Instance.new("UICorner") corner.Parent = box
+    local corner = Instance.new("UICorner")
+    corner.Parent = box
 
     box.FocusLost:Connect(function(enter)
         if enter then
@@ -409,7 +416,9 @@ function ElementAPI.AddToggle(parentPage, text, default, callback)
   switch.BackgroundColor3 = Color3.fromRGB(36,36,38)
   switch.BorderSizePixel = 0
   switch.Parent = holder
-  local switchCorner = Instance.new("UICorner") switchCorner.CornerRadius = UDim.new(0,12) switchCorner.Parent = switch
+  local switchCorner = Instance.new("UICorner")
+  switchCorner.CornerRadius = UDim.new(0,12)
+  switchCorner.Parent = switch
 
   local dot = Instance.new("Frame")
   dot.Size = UDim2.new(0, 18, 0, 18)
@@ -417,7 +426,9 @@ function ElementAPI.AddToggle(parentPage, text, default, callback)
   dot.BackgroundColor3 = Color3.fromRGB(200,200,200)
   dot.BorderSizePixel = 0
   dot.Parent = switch
-  local dotCorner = Instance.new("UICorner") dotCorner.CornerRadius = UDim.new(0,9) dotCorner.Parent = dot
+  local dotCorner = Instance.new("UICorner")
+  dotCorner.CornerRadius = UDim.new(0,9)
+  dotCorner.Parent = dot
 
   local state = (default == true)
 
@@ -484,7 +495,9 @@ function ElementAPI.AddSlider(parentPage, text, min, max, default, callback)
   barHolder.BackgroundColor3 = Color3.fromRGB(36,36,38)
   barHolder.BorderSizePixel = 0
   barHolder.Parent = holder
-  local barCorner = Instance.new("UICorner") barCorner.CornerRadius = UDim.new(0,6) barCorner.Parent = barHolder
+  local barCorner = Instance.new("UICorner")
+  barCorner.CornerRadius = UDim.new(0,6)
+  barCorner.Parent = barHolder
 
   local fill = Instance.new("Frame")
   fill.Size = UDim2.new(0, 0, 1, 0)
@@ -492,7 +505,9 @@ function ElementAPI.AddSlider(parentPage, text, min, max, default, callback)
   fill.BackgroundColor3 = config.Theme.Accent
   fill.BorderSizePixel = 0
   fill.Parent = barHolder
-  local fillCorner = Instance.new("UICorner") fillCorner.CornerRadius = UDim.new(0,6) fillCorner.Parent = fill
+  local fillCorner = Instance.new("UICorner")
+  fillCorner.CornerRadius = UDim.new(0,6)
+  fillCorner.Parent = fill
 
   local knob = Instance.new("TextButton")
   knob.Size = UDim2.new(0, 16, 0, 16)
@@ -501,7 +516,9 @@ function ElementAPI.AddSlider(parentPage, text, min, max, default, callback)
   knob.BackgroundColor3 = Color3.fromRGB(230,230,230)
   knob.BorderSizePixel = 0
   knob.Parent = barHolder
-  local knobCorner = Instance.new("UICorner") knobCorner.CornerRadius = UDim.new(0,8) knobCorner.Parent = knob
+  local knobCorner = Instance.new("UICorner")
+  knobCorner.CornerRadius = UDim.new(0,8)
+  knobCorner.Parent = knob
 
   local dragging = false
   local function setValueFromX(x)
@@ -600,7 +617,9 @@ function ElementAPI.AddDropdown(parentPage, text, options, default, callback)
   box.Font = Enum.Font.Gotham
   box.TextSize = 13
   box.Parent = holder
-  local boxCorner = Instance.new("UICorner") boxCorner.CornerRadius = UDim.new(0,8) boxCorner.Parent = box
+  local boxCorner = Instance.new("UICorner")
+  boxCorner.CornerRadius = UDim.new(0,8)
+  boxCorner.Parent = box
 
   local open = false
   local listFrame
@@ -625,7 +644,10 @@ function ElementAPI.AddDropdown(parentPage, text, options, default, callback)
       local fx, fy = clampDropdownPosition(screenX, screenY, width, maxHeight)
       listFrame.Position = UDim2.new(0, fx - screenGui.AbsolutePosition.X, 0, fy - screenGui.AbsolutePosition.Y)
 
-      local listLayout = Instance.new("UIListLayout") listLayout.Parent = listFrame listLayout.SortOrder = Enum.SortOrder.LayoutOrder listLayout.Padding = UDim.new(0,4)
+      local listLayout = Instance.new("UIListLayout")
+      listLayout.Parent = listFrame
+      listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+      listLayout.Padding = UDim.new(0,4)
 
       for i,opt in ipairs(options) do
         local b = Instance.new("TextButton")
@@ -639,7 +661,9 @@ function ElementAPI.AddDropdown(parentPage, text, options, default, callback)
         b.Font = Enum.Font.Gotham
         b.TextSize = 13
         b.Parent = listFrame
-        local bCorner = Instance.new("UICorner") bCorner.CornerRadius = UDim.new(0,6) bCorner.Parent = b
+        local bCorner = Instance.new("UICorner")
+        bCorner.CornerRadius = UDim.new(0,6)
+        bCorner.Parent = b
 
         b.MouseButton1Click:Connect(function()
           box.Text = tostring(opt)
@@ -710,7 +734,9 @@ function ElementAPI.AddDropdownMulti(parentPage, text, options, defaults, callba
     box.Font = Enum.Font.Gotham
     box.TextSize = 13
     box.Parent = holder
-    local boxCorner = Instance.new("UICorner") boxCorner.CornerRadius = UDim.new(0,8) boxCorner.Parent = box
+    local boxCorner = Instance.new("UICorner")
+    boxCorner.CornerRadius = UDim.new(0,8)
+    boxCorner.Parent = box
 
     local open = false
     local listFrame
@@ -754,7 +780,9 @@ function ElementAPI.AddDropdownMulti(parentPage, text, options, defaults, callba
             b.Font = Enum.Font.Gotham
             b.TextSize = 13
             b.Parent = listFrame
-            local bCorner = Instance.new("UICorner") bCorner.CornerRadius = UDim.new(0,6) bCorner.Parent = b
+            local bCorner = Instance.new("UICorner")
+            bCorner.CornerRadius = UDim.new(0,6)
+            bCorner.Parent = b
 
             local tick = Instance.new("TextLabel")
             tick.Size = UDim2.new(0, 18, 1, 0)
@@ -855,7 +883,9 @@ local function CreateNotification(title, text, duration, soundAssetId)
     notif.BackgroundColor3 = Color3.fromRGB(18,18,20)
     notif.BorderSizePixel = 0
     notif.BackgroundTransparency = 1
-    local corner = Instance.new("UICorner") corner.CornerRadius = UDim.new(0,10) corner.Parent = notif
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0,10)
+    corner.Parent = notif
 
     local ttl = Instance.new("TextLabel")
     ttl.Size = UDim2.new(1, -12, 0, 20)
@@ -1005,7 +1035,6 @@ Window.SetBackground = nil
 Window.Notify = CreateNotification
 Window.PlaySound = PlaySound
 
--- GIF animator defaults
 local warperFramerate = 24
 local lastFrameDefault = 1
 local framesDefault = 25
@@ -1218,11 +1247,14 @@ function Window:Window(opts)
     local settingsTab = createTab("Settings UI")
     local settingsPage = settingsTab.Page
 
-    if Tabs["Settings UI"] and Tabs["Settings UI"].Button then
-        Tabs["Settings UI"].Button.LayoutOrder = 9999
-    end
-    if Tabs["Settings UI"] and Tabs["Settings UI"].Page then
-        Tabs["Settings UI"].Page.LayoutOrder = 9999
+    if Tabs["Settings UI"] then
+        local t = Tabs["Settings UI"]
+        if typeof(t.Button) == "Instance" then
+            pcall(function() t.Button.LayoutOrder = 9999 end)
+        end
+        if typeof(t.Page) == "Instance" then
+            pcall(function() t.Page.LayoutOrder = 9999 end)
+        end
     end
 
     local bgLabel = Instance.new("TextLabel")
@@ -1345,7 +1377,9 @@ do
     grip.BackgroundColor3 = Color3.fromRGB(30,30,32)
     grip.BorderSizePixel = 0
     grip.Parent = frame
-    local gripCorner = Instance.new("UICorner") gripCorner.CornerRadius = UDim.new(0,6) gripCorner.Parent = grip
+    local gripCorner = Instance.new("UICorner")
+    gripCorner.CornerRadius = UDim.new(0,6)
+    gripCorner.Parent = grip
 
     local resizing = false
     local resizeInput = nil
